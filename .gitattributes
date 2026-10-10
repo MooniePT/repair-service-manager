@@ -1,0 +1,3 @@
+# Language stats on GitHub: ignore the bundled Chart.js and the Jinja templates
+static/js/vendor/** linguist-vendored
+templates/** linguist-detectable=false
