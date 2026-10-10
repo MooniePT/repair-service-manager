@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Editar Encomenda n.º {{ encomenda.id }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('encomendas') }}">Encomendas</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar n.º {{ encomenda.id }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Editar Encomenda n.º {{ encomenda.id }}</h1>
+    {{ m.badge_encomenda(encomenda.status) }}
+</div>
+
+<div class="card form-card">
+    <div class="card-body">
+        <form action="{{ url_for('editar_encomenda', id=encomenda.id) }}" method="post">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label for="descricao" class="form-label">Descrição <span class="text-danger">*</span></label>
+                    <input type="text" name="descricao" id="descricao" class="form-control" value="{{ encomenda.descricao }}" required maxlength="200">
+                </div>
+                <div class="col-6 col-md-4">
+                    <label for="quantidade" class="form-label">Quantidade</label>
+                    <input type="number" name="quantidade" id="quantidade" class="form-control" min="1" step="1"
+                           value="{{ encomenda.quantidade if encomenda.quantidade else '' }}">
+                </div>
+                <div class="col-md-6">
+                    <label for="fornecedor" class="form-label">Fornecedor</label>
+                    <input type="text" name="fornecedor" id="fornecedor" class="form-control" value="{{ encomenda.fornecedor or '' }}" maxlength="120">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="data_encomenda" class="form-label">Data da encomenda</label>
+                    <input type="date" name="data_encomenda" id="data_encomenda" class="form-control" value="{{ encomenda.data_encomenda or '' }}">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="status" class="form-label">Estado <span class="text-danger">*</span></label>
+                    <select name="status" id="status" class="form-select" required>
+                        {% for e in ('Por encomendar', 'Já encomendado', 'Recebido') %}
+                        <option value="{{ e }}" {% if encomenda.status == e %}selected{% endif %}>{{ e }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">«Recebido» preenche a data de receção automaticamente.</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="data_recebimento" class="form-label">Data de receção</label>
+                    <input type="date" name="data_recebimento" id="data_recebimento" class="form-control" value="{{ encomenda.data_recebimento or '' }}">
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Guardar Alterações</button>
+                <a href="{{ url_for('encomendas') }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

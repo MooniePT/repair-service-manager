@@ -1,0 +1,17 @@
+# ============================================================
+#  Contentor de backup automático da base de dados
+#  Alpine + cron + sqlite. Faz um backup ao arrancar e depois
+#  todos os dias às 03:00 (hora de Lisboa).
+# ============================================================
+FROM alpine:3.20
+
+RUN apk add --no-cache sqlite tzdata
+ENV TZ=Europe/Lisbon
+
+COPY backup.sh /usr/local/bin/backup.sh
+RUN sed -i 's/\r$//' /usr/local/bin/backup.sh \
+ && chmod +x /usr/local/bin/backup.sh \
+ && echo "0 3 * * * /usr/local/bin/backup.sh >> /var/log/backup.log 2>&1" > /etc/crontabs/root
+
+# Faz um backup imediato ao arrancar e depois fica agendado.
+CMD ["sh", "-c", "/usr/local/bin/backup.sh; crond -f -l 2"]

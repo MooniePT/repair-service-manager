@@ -1,0 +1,176 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Histórico{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Histórico
+        <span class="text-muted fs-5">({{ pag.total }} {% if vista == 'clientes' %}clientes{% else %}assistências{% endif %})</span>
+    </h1>
+    <div class="btn-group" role="group" aria-label="Modo de visualização">
+        <a href="{{ url_atual(vista='lista', pagina=1) }}"
+           class="btn btn-sm {% if vista != 'clientes' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            <i class="fas fa-list me-1"></i>Lista
+        </a>
+        <a href="{{ url_atual(vista='clientes', pagina=1) }}"
+           class="btn btn-sm {% if vista == 'clientes' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+            <i class="fas fa-users me-1"></i>Por cliente
+        </a>
+    </div>
+</div>
+<p class="text-muted">Assistências concluídas e canceladas.
+    {% if vista == 'clientes' %}Cada linha mostra a assistência mais recente do cliente — clique para expandir o histórico completo.{% endif %}
+</p>
+
+{{ m.form_pesquisa(q, com_datas=true, data_de=data_de, data_ate=data_ate, estado=estado, estados_opcoes=('Concluída', 'Cancelada')) }}
+
+{% if vista == 'clientes' %}
+{# ================= vista agrupada por cliente ================= #}
+{% if grupos %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th style="width: 2rem;"></th>
+                    <th>Cliente</th>
+                    <th class="text-center">Assistências</th>
+                    <th>Última em</th>
+                    <th>Última avaria</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for g in grupos %}
+                {% set ultima = g.itens[0] %}
+                <tr class="linha-grupo" data-bs-toggle="collapse" data-bs-target="#grupo-{{ loop.index }}"
+                    role="button" aria-expanded="false" aria-controls="grupo-{{ loop.index }}"
+                    title="Clique para ver todo o histórico deste cliente">
+                    <td class="text-center"><i class="fas fa-chevron-right seta-grupo"></i></td>
+                    <td class="fw-semibold">
+                        {% if g.cliente_nome %}{{ g.cliente_nome }}{% else %}<span class="text-muted fst-italic">Cliente removido</span>{% endif %}
+                    </td>
+                    <td class="text-center"><span class="badge badge-contador rounded-pill">{{ g.itens|length }}</span></td>
+                    <td class="text-nowrap">{{ ultima.data_conclusao|data_pt }}</td>
+                    <td class="celula-truncada" title="{{ ultima.avaria }}">{{ ultima.avaria }}</td>
+                    <td>{{ m.badge_estado(ultima.status) }}</td>
+                </tr>
+                <tr class="collapse linha-grupo-detalhe" id="grupo-{{ loop.index }}">
+                    <td colspan="6" class="p-0">
+                        <div class="grupo-detalhe">
+                            <table class="table table-sm align-middle mb-0">
+                                <thead>
+                                    <tr>
+                                        <th>N.º</th><th>Data</th><th>Concluído em</th><th>Avaria</th>
+                                        <th class="d-none d-lg-table-cell">Trabalho efetuado</th>
+                                        <th class="d-none d-md-table-cell">Tipo</th>
+                                        <th>Estado</th><th class="d-none d-md-table-cell">Valor</th><th>Pago</th>
+                                        <th class="text-end">Ações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for a in g.itens %}
+                                    <tr>
+                                        <td>{{ a.id }}</td>
+                                        <td class="text-nowrap">{{ a.data|data_pt }}</td>
+                                        <td class="text-nowrap">{{ a.data_conclusao|data_pt }}</td>
+                                        <td class="celula-truncada" title="{{ a.avaria }}">{{ a.avaria }}</td>
+                                        <td class="d-none d-lg-table-cell celula-truncada" title="{{ a.descricao }}">{{ a.descricao or '—' }}</td>
+                                        <td class="d-none d-md-table-cell">{{ a.tipo }}</td>
+                                        <td>{{ m.badge_estado(a.status) }}</td>
+                                        <td class="d-none d-md-table-cell">{{ a.valor|euros }}</td>
+                                        <td>{% if a.status == 'Concluída' %}{{ m.badge_pago(a.pago) }}{% else %}—{% endif %}</td>
+                                        <td class="text-end">
+                                            <a href="{{ url_for('editar_assistencia', id=a.id, next=request.full_path) }}"
+                                               class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pen"></i></a>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            {% if g.cliente_id %}
+                            <div class="px-3 py-2 border-top">
+                                <a href="{{ url_for('ver_cliente', id=g.cliente_id) }}" class="small">
+                                    <i class="fas fa-user me-1"></i>Abrir ficha completa do cliente
+                                </a>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ m.paginacao(pag) }}
+{% else %}
+<div class="card"><div class="card-body">
+    {{ m.sem_resultados(q, 'O histórico ainda está vazio.') }}
+</div></div>
+{% endif %}
+
+{% else %}
+{# ================= vista em lista ================= #}
+{% if assistencias %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>N.º</th>
+                    <th>Cliente</th>
+                    <th class="d-none d-lg-table-cell">Data</th>
+                    <th>Concluído em</th>
+                    <th>Avaria</th>
+                    <th class="d-none d-lg-table-cell">Trabalho efetuado</th>
+                    <th class="d-none d-md-table-cell">Tipo</th>
+                    <th>Estado</th>
+                    <th class="d-none d-md-table-cell">Valor</th>
+                    <th>Pago</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in assistencias %}
+                <tr>
+                    <td>{{ a.id }}</td>
+                    <td>{{ m.nome_cliente(a) }}</td>
+                    <td class="d-none d-lg-table-cell text-nowrap">{{ a.data|data_pt }}</td>
+                    <td class="text-nowrap">{{ a.data_conclusao|data_pt }}</td>
+                    <td class="celula-truncada" title="{{ a.avaria }}">{{ a.avaria }}</td>
+                    <td class="d-none d-lg-table-cell celula-truncada" title="{{ a.descricao }}">{{ a.descricao or '—' }}</td>
+                    <td class="d-none d-md-table-cell">{{ a.tipo }}</td>
+                    <td>{{ m.badge_estado(a.status) }}</td>
+                    <td class="d-none d-md-table-cell">{{ a.valor|euros }}</td>
+                    <td>
+                        {% if a.status == 'Concluída' %}
+                        <form action="{{ url_for('alternar_pago', id=a.id) }}" method="post" class="d-inline"
+                              data-confirm="Marcar a assistência n.º {{ a.id }} como {{ 'NÃO paga' if a.pago else 'PAGA' }}?">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="next" value="{{ request.full_path }}">
+                            <button type="submit" class="btn btn-sm p-0 border-0 bg-transparent" title="Clique para alternar pago/não pago">
+                                {{ m.badge_pago(a.pago) }}
+                            </button>
+                        </form>
+                        {% else %}—{% endif %}
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a href="{{ url_for('editar_assistencia', id=a.id, next=request.full_path) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pen"></i></a>
+                        {{ m.botao_apagar_assistencia(a, request.full_path) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ m.paginacao(pag) }}
+{% else %}
+<div class="card"><div class="card-body">
+    {{ m.sem_resultados(q, 'O histórico ainda está vazio.') }}
+</div></div>
+{% endif %}
+{% endif %}
+{% endblock %}

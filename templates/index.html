@@ -1,0 +1,247 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Dashboard</h1>
+    <div class="d-flex gap-2">
+        <a href="{{ url_for('listar_assistencias', novo=1) }}" class="btn btn-primary">
+            <i class="fas fa-plus me-1"></i>Nova Assistência
+        </a>
+        <a href="{{ url_for('listar_clientes') }}#novo-cliente" class="btn btn-outline-primary">
+            <i class="fas fa-user-plus me-1"></i>Novo Cliente
+        </a>
+    </div>
+</div>
+
+{# ---------- cartões de resumo ---------- #}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('listar_clientes') }}" class="stat-card stat-neutral">
+            <div class="stat-icon"><i class="fas fa-users"></i></div>
+            <div class="stat-value">{{ stats.clientes }}</div>
+            <div class="stat-label">Clientes</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('concluidos') }}" class="stat-card stat-neutral">
+            <div class="stat-icon"><i class="fas fa-screwdriver-wrench"></i></div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-label">Assistências (total)</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('listar_assistencias') }}" class="stat-card stat-neutral">
+            <div class="stat-icon"><i class="fas fa-calendar-day"></i></div>
+            <div class="stat-value">{{ stats.este_mes }}</div>
+            <div class="stat-label">Este mês</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('listar_assistencias') }}" class="stat-card {% if stats.urgentes_abertas %}stat-danger{% else %}stat-neutral{% endif %}">
+            <div class="stat-icon"><i class="fas fa-triangle-exclamation"></i></div>
+            <div class="stat-value">{{ stats.urgentes_abertas }}</div>
+            <div class="stat-label">Urgentes em aberto</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('listar_assistencias', estado='Pendente') }}" class="stat-card stat-warning">
+            <div class="stat-icon"><i class="fas fa-clock"></i></div>
+            <div class="stat-value">{{ stats.pendentes }}</div>
+            <div class="stat-label">Pendentes</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('listar_assistencias', estado='Em andamento') }}" class="stat-card stat-primary">
+            <div class="stat-icon"><i class="fas fa-person-digging"></i></div>
+            <div class="stat-value">{{ stats.andamento }}</div>
+            <div class="stat-label">Em andamento</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('aguarda_verificacao') }}" class="stat-card stat-info">
+            <div class="stat-icon"><i class="fas fa-hourglass-half"></i></div>
+            <div class="stat-value">{{ stats.aguarda }}</div>
+            <div class="stat-label">Aguarda verificação</div>
+        </a>
+    </div>
+    <div class="col-6 col-md-3">
+        <a href="{{ url_for('concluidos', estado='Concluída') }}" class="stat-card {% if stats.por_pagar %}stat-danger{% else %}stat-success{% endif %}">
+            <div class="stat-icon"><i class="fas fa-euro-sign"></i></div>
+            <div class="stat-value">{{ stats.por_pagar }}</div>
+            <div class="stat-label">Concluídas por pagar</div>
+        </a>
+    </div>
+</div>
+
+{# ---------- faturação (só quando há valores registados) ---------- #}
+{% if stats.com_valor > 0 %}
+<div class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="card card-valor h-100"><div class="card-body">
+            <div class="text-muted small">Total faturado (concluídas)</div>
+            <div class="fs-4 fw-bold text-success">{{ stats.faturado|euros }}</div>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-valor h-100"><div class="card-body">
+            <div class="text-muted small">Por receber</div>
+            <div class="fs-4 fw-bold text-danger">{{ stats.por_receber|euros }}</div>
+        </div></div>
+    </div>
+    <div class="col-md-4">
+        <div class="card card-valor h-100"><div class="card-body">
+            <div class="text-muted small">Valor médio por assistência</div>
+            <div class="fs-4 fw-bold">{{ stats.valor_medio|euros }}</div>
+        </div></div>
+    </div>
+</div>
+{% endif %}
+
+{# ---------- alertas ---------- #}
+{% if stats.urgentes_abertas or stats.antigas_abertas or stats.por_pagar or stats.encomendas_pendentes %}
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-triangle-exclamation me-2"></i>Alertas</div>
+    <ul class="list-group list-group-flush">
+        {% if stats.urgentes_abertas %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><span class="badge badge-urgente me-2">Urgente</span>{{ stats.urgentes_abertas }} assistência(s) urgente(s) em aberto</span>
+            <a href="{{ url_for('listar_assistencias') }}" class="btn btn-sm btn-outline-primary">Ver</a>
+        </li>
+        {% endif %}
+        {% if stats.antigas_abertas %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><span class="badge estado-pendente me-2">Atraso</span>{{ stats.antigas_abertas }} assistência(s) em aberto há mais de 14 dias</span>
+            <a href="{{ url_for('listar_assistencias') }}" class="btn btn-sm btn-outline-primary">Ver</a>
+        </li>
+        {% endif %}
+        {% if stats.por_pagar %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><span class="badge badge-por-pagar me-2">€</span>{{ stats.por_pagar }} assistência(s) concluída(s) por pagar</span>
+            <a href="{{ url_for('concluidos', estado='Concluída') }}" class="btn btn-sm btn-outline-primary">Ver</a>
+        </li>
+        {% endif %}
+        {% if stats.encomendas_pendentes %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+            <span><span class="badge estado-andamento me-2"><i class="fas fa-box-open"></i></span>{{ stats.encomendas_pendentes }} encomenda(s) por encomendar/receber</span>
+            <a href="{{ url_for('encomendas') }}" class="btn btn-sm btn-outline-primary">Ver</a>
+        </li>
+        {% endif %}
+    </ul>
+</div>
+{% endif %}
+
+{# ---------- gráficos ---------- #}
+<div class="row g-3 mb-4">
+    <div class="col-lg-8">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-line me-2"></i>Evolução mensal (últimos 12 meses)</div>
+            <div class="card-body">
+                <div class="grafico-caixa grafico-caixa-grande"><canvas id="grafico-meses" aria-label="Assistências criadas e concluídas por mês" role="img"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-pie me-2"></i>Distribuição por estado</div>
+            <div class="card-body">
+                <div class="grafico-caixa grafico-caixa-grande"><canvas id="grafico-estados" aria-label="Assistências por estado" role="img"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-chart-bar me-2"></i>Tipos de assistência</div>
+            <div class="card-body">
+                <div class="grafico-caixa"><canvas id="grafico-tipos" aria-label="Assistências por tipo" role="img"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-stopwatch me-2"></i>Idade das assistências em aberto</div>
+            <div class="card-body">
+                <div class="grafico-caixa"><canvas id="grafico-idades" aria-label="Tempo em aberto das assistências" role="img"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-euro-sign me-2"></i>Pagas vs por pagar (concluídas)</div>
+            <div class="card-body">
+                <div class="grafico-caixa"><canvas id="grafico-pagamentos" aria-label="Assistências pagas e por pagar" role="img"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header"><i class="fas fa-ranking-star me-2"></i>Top clientes (mais assistências)</div>
+            <div class="card-body">
+                <div class="grafico-caixa"><canvas id="grafico-clientes" aria-label="Clientes com mais assistências" role="img"></canvas></div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <span><i class="fas fa-calendar-day me-2"></i>Próximas assistências</span>
+                <a href="{{ url_for('listar_assistencias') }}" class="small">Ver todas</a>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm table-hover align-middle mb-0">
+                    <thead><tr><th>Data</th><th>Hora</th><th>Cliente</th><th>Avaria</th><th>Estado</th></tr></thead>
+                    <tbody>
+                        {% for a in proximas %}
+                        <tr>
+                            <td class="text-nowrap">{{ a.data|data_pt }}</td>
+                            <td>{{ a.hora or '—' }}</td>
+                            <td>{{ m.nome_cliente(a) }}</td>
+                            <td class="celula-truncada" title="{{ a.avaria }}">{{ a.avaria }}</td>
+                            <td>{{ m.badge_estado(a.status) }}</td>
+                        </tr>
+                        {% else %}
+                        <tr><td colspan="5" class="text-center text-muted py-4">Sem assistências agendadas a partir de hoje.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ---------- últimas criadas ---------- #}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <span><i class="fas fa-clock-rotate-left me-2"></i>Últimas assistências</span>
+        <a href="{{ url_for('concluidos') }}" class="small">Histórico</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover align-middle mb-0">
+            <thead><tr><th>N.º</th><th>Data</th><th>Cliente</th><th>Avaria</th><th>Estado</th></tr></thead>
+            <tbody>
+                {% for a in ultimas %}
+                <tr>
+                    <td>{{ a.id }}</td>
+                    <td class="text-nowrap">{{ a.data|data_pt }}</td>
+                    <td>{{ m.nome_cliente(a) }}</td>
+                    <td class="celula-truncada" title="{{ a.avaria }}">{{ a.avaria }}</td>
+                    <td>{{ m.badge_estado(a.status) }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" class="text-center text-muted py-4">Ainda não existem assistências.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{# dados reais para os gráficos — bloco JSON não executável (compatível com a CSP) #}
+<script type="application/json" id="dados-graficos">{{ graficos|tojson }}</script>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='js/vendor/chart.umd.min.js') }}"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}

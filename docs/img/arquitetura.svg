@@ -1,0 +1,78 @@
+<svg viewBox="0 0 1040 560" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <style>
+    .titulo { font-size: 22px; font-weight: 700; fill: #1B5E20; }
+    .cx { fill: #ffffff; stroke: #2E7D32; stroke-width: 2; rx: 10; }
+    .cx-soft { fill: #E8F5E9; stroke: #66BB6A; stroke-width: 2; }
+    .cx-cloud { fill: #FFF8E1; stroke: #F9A825; stroke-width: 2; }
+    .h { font-size: 16px; font-weight: 700; fill: #263238; }
+    .t { font-size: 13px; fill: #37474F; }
+    .tm { font-size: 12px; fill: #607D8B; }
+    .lbl { font-size: 12px; fill: #1B5E20; font-weight: 700; }
+    .arrow { stroke: #2E7D32; stroke-width: 2.5; fill: none; marker-end: url(#a); }
+  </style>
+  <defs>
+    <marker id="a" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2E7D32"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="40" class="titulo">Arquitetura — acesso externo seguro</text>
+
+  <!-- Utilizador -->
+  <rect x="30" y="90" width="180" height="120" class="cx" rx="10"/>
+  <text x="120" y="120" text-anchor="middle" class="h">Utilizador</text>
+  <text x="120" y="148" text-anchor="middle" class="t">Browser / telemóvel</text>
+  <text x="120" y="172" text-anchor="middle" class="tm">de qualquer lugar</text>
+  <text x="120" y="192" text-anchor="middle" class="tm">(em Portugal)</text>
+
+  <!-- Cloudflare -->
+  <rect x="290" y="70" width="240" height="320" class="cx-cloud" rx="14"/>
+  <text x="410" y="100" text-anchor="middle" class="h">☁ Cloudflare</text>
+  <text x="410" y="120" text-anchor="middle" class="tm">(rede mundial, HTTPS)</text>
+
+  <rect x="312" y="140" width="196" height="64" fill="#ffffff" stroke="#F9A825" stroke-width="1.5" rx="8"/>
+  <text x="410" y="163" text-anchor="middle" class="lbl">1 · Verifica o PAÍS</text>
+  <text x="410" y="186" text-anchor="middle" class="t">só Portugal passa</text>
+
+  <rect x="312" y="220" width="196" height="74" fill="#ffffff" stroke="#F9A825" stroke-width="1.5" rx="8"/>
+  <text x="410" y="244" text-anchor="middle" class="lbl">2 · Verifica o EMAIL</text>
+  <text x="410" y="265" text-anchor="middle" class="t">lista autorizada +</text>
+  <text x="410" y="283" text-anchor="middle" class="t">código por email (OTP)</text>
+
+  <rect x="312" y="310" width="196" height="56" fill="#E8F5E9" stroke="#66BB6A" stroke-width="1.5" rx="8"/>
+  <text x="410" y="333" text-anchor="middle" class="lbl">Túnel encriptado</text>
+  <text x="410" y="353" text-anchor="middle" class="tm">(cloudflared)</text>
+
+  <!-- Docker host -->
+  <rect x="610" y="70" width="400" height="420" class="cx-soft" rx="14"/>
+  <text x="810" y="100" text-anchor="middle" class="h">🖥 Máquina (Windows + Docker)</text>
+
+  <rect x="640" y="125" width="340" height="120" fill="#ffffff" stroke="#2E7D32" stroke-width="2" rx="10"/>
+  <text x="810" y="152" text-anchor="middle" class="h">Contentor «tunnel»</text>
+  <text x="810" y="178" text-anchor="middle" class="t">cloudflared — liga ao Cloudflare</text>
+  <text x="810" y="200" text-anchor="middle" class="t">de dentro para fora</text>
+  <text x="810" y="224" text-anchor="middle" class="tm">não abre portas no router</text>
+
+  <rect x="640" y="265" width="340" height="120" fill="#ffffff" stroke="#2E7D32" stroke-width="2" rx="10"/>
+  <text x="810" y="292" text-anchor="middle" class="h">Contentor «web»</text>
+  <text x="810" y="318" text-anchor="middle" class="t">gunicorn → app Flask (porta 5000)</text>
+  <text x="810" y="342" text-anchor="middle" class="lbl">3 · Login da aplicação</text>
+  <text x="810" y="362" text-anchor="middle" class="t">(admin + palavra-passe)</text>
+
+  <!-- volume DB -->
+  <path d="M690 410 a60 14 0 0 1 120 0 v44 a60 14 0 0 1 -120 0 Z" fill="#FFFFFF" stroke="#1B5E20" stroke-width="2"/>
+  <path d="M690 410 a60 14 0 0 0 120 0" fill="none" stroke="#1B5E20" stroke-width="2"/>
+  <text x="750" y="448" text-anchor="middle" class="t">database/</text>
+  <text x="750" y="466" text-anchor="middle" class="tm">assistencias.db</text>
+  <text x="900" y="440" text-anchor="middle" class="tm">volume no</text>
+  <text x="900" y="458" text-anchor="middle" class="tm">disco Windows</text>
+
+  <!-- arrows -->
+  <path d="M210 150 H285" class="arrow"/>
+  <path d="M530 250 H636" class="arrow"/>
+  <path d="M810 245 V262" class="arrow"/>
+  <path d="M810 385 V405" class="arrow"/>
+
+  <text x="248" y="140" class="tm">https</text>
+  <text x="556" y="240" class="tm">túnel</text>
+</svg>

@@ -1,0 +1,192 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Assistências em Aberto{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Assistências em Aberto <span class="text-muted fs-5">({{ pag.total }})</span></h1>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#nova-assistencia"
+            aria-expanded="{{ 'true' if abrir_form else 'false' }}" aria-controls="nova-assistencia">
+        <i class="fas fa-plus me-1"></i>Nova Assistência
+    </button>
+</div>
+
+{# ---------- formulário de nova assistência ---------- #}
+<div class="collapse mb-4 {% if abrir_form %}show{% endif %}" id="nova-assistencia">
+    <div class="card">
+        <div class="card-header"><i class="fas fa-plus me-2"></i>Criar nova assistência</div>
+        <div class="card-body">
+            <form action="{{ url_for('add_assistencia') }}" method="post" id="form-assistencia">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="cliente_id" class="form-label">Cliente <span class="text-danger">*</span></label>
+                        <div class="input-group">
+                            <select name="cliente_id" id="cliente_id" class="form-select" required>
+                                <option value="">— Selecione um cliente —</option>
+                                {% for cliente in clientes %}
+                                <option value="{{ cliente.id }}" {% if cliente_pre and cliente.id|string == cliente_pre %}selected{% endif %}>
+                                    {{ cliente.nome }}{% if cliente.nif %} · NIF {{ cliente.nif }}{% endif %}
+                                </option>
+                                {% endfor %}
+                            </select>
+                            <button class="btn btn-outline-primary" type="button" data-bs-toggle="modal" data-bs-target="#modal-novo-cliente"
+                                    title="Criar novo cliente sem sair desta página">
+                                <i class="fas fa-user-plus"></i>
+                            </button>
+                        </div>
+                        <input type="text" id="cliente_search" class="form-control form-control-sm mt-2"
+                               placeholder="Escreva para filtrar a lista de clientes...">
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="data" class="form-label">Data <span class="text-danger">*</span></label>
+                        <input type="date" name="data" id="data" class="form-control" required>
+                    </div>
+                    <div class="col-6 col-md-3">
+                        <label for="hora" class="form-label">Hora</label>
+                        <input type="time" name="hora" id="hora" class="form-control">
+                    </div>
+                    <div class="col-12">
+                        <label for="avaria" class="form-label">Avaria / problema <span class="text-danger">*</span></label>
+                        <textarea name="avaria" id="avaria" class="form-control" rows="2" required
+                                  placeholder="Descreva o problema reportado pelo cliente"></textarea>
+                    </div>
+                    <div class="col-12">
+                        <label for="descricao" class="form-label">Descrição / observações do trabalho</label>
+                        <textarea name="descricao" id="descricao" class="form-control" rows="2"
+                                  placeholder="Notas internas, material necessário, etc. (opcional)"></textarea>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label for="tipo" class="form-label">Tipo <span class="text-danger">*</span></label>
+                        <select name="tipo" id="tipo" class="form-select" required>
+                            {% for t in TIPOS_ASSISTENCIA %}
+                            <option value="{{ t }}">{{ t }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label for="urgencia" class="form-label">Urgência</label>
+                        <select name="urgencia" id="urgencia" class="form-select">
+                            {% for u in URGENCIAS %}
+                            <option value="{{ u }}">{{ u }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <label for="valor" class="form-label">Valor (€)</label>
+                        <input type="text" name="valor" id="valor" class="form-control" inputmode="decimal"
+                               placeholder="Ex.: 45,50 (opcional)">
+                    </div>
+                </div>
+                <div class="mt-3 d-flex gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Criar Assistência</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#nova-assistencia">Cancelar</button>
+                    <span class="text-muted small ms-2">A assistência fica automaticamente no estado «Pendente».</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{# ---------- modal de criação rápida de cliente ---------- #}
+<div class="modal fade" id="modal-novo-cliente" tabindex="-1" aria-labelledby="modal-novo-cliente-titulo" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form action="{{ url_for('add_cliente') }}" method="post">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <input type="hidden" name="next" value="{{ url_for('listar_assistencias') }}">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modal-novo-cliente-titulo"><i class="fas fa-user-plus me-2"></i>Novo cliente rápido</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="m-nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                        <input type="text" name="nome" id="m-nome" class="form-control" required maxlength="120">
+                    </div>
+                    <div class="row g-3">
+                        <div class="col-6">
+                            <label for="m-nif" class="form-label">NIF</label>
+                            <input type="text" name="nif" id="m-nif" class="form-control" inputmode="numeric" pattern="\d{9}" title="9 dígitos" maxlength="9">
+                        </div>
+                        <div class="col-6">
+                            <label for="m-contacto" class="form-label">Contacto</label>
+                            <input type="text" name="contacto" id="m-contacto" class="form-control" maxlength="30">
+                        </div>
+                    </div>
+                    <div class="mt-3">
+                        <label for="m-morada" class="form-label">Morada</label>
+                        <input type="text" name="morada" id="m-morada" class="form-control" maxlength="200">
+                    </div>
+                    <p class="text-muted small mt-3 mb-0">Após guardar, volta a esta página com o cliente já selecionado.</p>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Guardar e Continuar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ m.form_pesquisa(q, estado=estado, estados_opcoes=ESTADOS_ABERTOS) }}
+
+{% if assistencias %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>N.º</th>
+                    <th>Data</th>
+                    <th>Cliente</th>
+                    <th>Avaria</th>
+                    <th class="d-none d-lg-table-cell">Tipo</th>
+                    <th>Urgência</th>
+                    <th>Estado</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in assistencias %}
+                <tr class="{% if a.urgencia == 'Urgente' %}linha-urgente{% endif %}">
+                    <td>{{ a.id }}</td>
+                    <td class="text-nowrap">{{ a.data|data_pt }}{% if a.hora %}<div class="small text-muted">{{ a.hora }}</div>{% endif %}</td>
+                    <td>{{ m.nome_cliente(a) }}</td>
+                    <td class="celula-truncada" title="{{ a.avaria }}">{{ a.avaria }}</td>
+                    <td class="d-none d-lg-table-cell">{{ a.tipo }}</td>
+                    <td>{{ m.badge_urgencia(a.urgencia) }}</td>
+                    <td>{{ m.badge_estado(a.status) }}</td>
+                    <td class="text-end text-nowrap">
+                        {% if a.status == 'Pendente' %}
+                        <form action="{{ url_for('mudar_estado', id=a.id) }}" method="post" class="d-inline">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="estado" value="Em andamento">
+                            <input type="hidden" name="next" value="{{ request.full_path }}">
+                            <button type="submit" class="btn btn-sm btn-outline-primary" title="Iniciar trabalho"><i class="fas fa-play"></i></button>
+                        </form>
+                        {% endif %}
+                        <form action="{{ url_for('mudar_estado', id=a.id) }}" method="post" class="d-inline"
+                              data-confirm="Marcar o trabalho como feito? A assistência passa para «Aguarda Verificação».">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="estado" value="Aguarda Verificação">
+                            <input type="hidden" name="next" value="{{ request.full_path }}">
+                            <button type="submit" class="btn btn-sm btn-outline-success" title="Trabalho feito"><i class="fas fa-check"></i></button>
+                        </form>
+                        <a href="{{ url_for('editar_assistencia', id=a.id, next=request.full_path) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pen"></i></a>
+                        {{ m.botao_apagar_assistencia(a, request.full_path) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ m.paginacao(pag) }}
+{% else %}
+<div class="card"><div class="card-body">
+    {{ m.sem_resultados(q, 'Não há assistências em aberto. Bom trabalho!') }}
+</div></div>
+{% endif %}
+{% endblock %}

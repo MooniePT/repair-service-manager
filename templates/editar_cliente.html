@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Editar Cliente{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_clientes') }}">Clientes</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('ver_cliente', id=cliente.id) }}">{{ cliente.nome }}</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar</li>
+    </ol>
+</nav>
+
+<h1 class="page-title mb-4">Editar Cliente</h1>
+
+<div class="card form-card">
+    <div class="card-body">
+        <form action="{{ url_for('editar_cliente', id=cliente.id) }}" method="post" id="form-cliente">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                    <input type="text" name="nome" id="nome" class="form-control" value="{{ cliente.nome }}" required maxlength="120">
+                </div>
+                <div class="col-md-3">
+                    <label for="nif" class="form-label">NIF</label>
+                    <input type="text" name="nif" id="nif" class="form-control" value="{{ cliente.nif or '' }}"
+                           inputmode="numeric" pattern="\d{9}" title="9 dígitos" maxlength="9">
+                </div>
+                <div class="col-md-3">
+                    <label for="contacto" class="form-label">Contacto</label>
+                    <input type="text" name="contacto" id="contacto" class="form-control" value="{{ cliente.contacto or '' }}" maxlength="30">
+                </div>
+                <div class="col-md-6">
+                    <label for="morada" class="form-label">Morada</label>
+                    <input type="text" name="morada" id="morada" class="form-control" value="{{ cliente.morada or '' }}" maxlength="200">
+                </div>
+                <div class="col-md-6">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" name="email" id="email" class="form-control" value="{{ cliente.email or '' }}" maxlength="120">
+                </div>
+                <div class="col-12">
+                    <label for="observacoes" class="form-label">Observações</label>
+                    <textarea name="observacoes" id="observacoes" class="form-control" rows="3">{{ cliente.observacoes or '' }}</textarea>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Guardar Alterações</button>
+                <a href="{{ url_for('ver_cliente', id=cliente.id) }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

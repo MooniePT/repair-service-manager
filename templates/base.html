@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{% endblock %} · Gestão de Assistências</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark app-navbar">
+        <div class="container-fluid px-3 px-lg-4">
+            <a class="navbar-brand" href="{{ url_for('index') }}">
+                <i class="fas fa-screwdriver-wrench me-2"></i>Gestão de Assistências
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+                    aria-controls="navbarNav" aria-expanded="false" aria-label="Alternar menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'index' %}active{% endif %}" href="{{ url_for('index') }}">
+                            <i class="fas fa-chart-line me-1"></i>Dashboard
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ('listar_clientes', 'ver_cliente', 'editar_cliente') %}active{% endif %}" href="{{ url_for('listar_clientes') }}">
+                            <i class="fas fa-users me-1"></i>Clientes
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'listar_assistencias' %}active{% endif %}" href="{{ url_for('listar_assistencias') }}">
+                            <i class="fas fa-list-check me-1"></i>Em Aberto
+                            {% if contadores.abertas %}<span class="badge rounded-pill badge-contador ms-1">{{ contadores.abertas }}</span>{% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'aguarda_verificacao' %}active{% endif %}" href="{{ url_for('aguarda_verificacao') }}">
+                            <i class="fas fa-hourglass-half me-1"></i>Aguarda Verificação
+                            {% if contadores.aguarda %}<span class="badge rounded-pill badge-contador ms-1">{{ contadores.aguarda }}</span>{% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'concluidos' %}active{% endif %}" href="{{ url_for('concluidos') }}">
+                            <i class="fas fa-clock-rotate-left me-1"></i>Histórico
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint in ('encomendas', 'editar_encomenda') %}active{% endif %}" href="{{ url_for('encomendas') }}">
+                            <i class="fas fa-box-open me-1"></i>Encomendas
+                            {% if contadores.encomendas %}<span class="badge rounded-pill badge-contador ms-1">{{ contadores.encomendas }}</span>{% endif %}
+                        </a>
+                    </li>
+                </ul>
+                <ul class="navbar-nav">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.endpoint == 'configuracao' %}active{% endif %}" href="{{ url_for('configuracao') }}" title="Configuração">
+                            <i class="fas fa-gear"></i><span class="d-lg-none ms-2">Configuração</span>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('logout') }}" title="Terminar sessão">
+                            <i class="fas fa-right-from-bracket"></i><span class="d-lg-none ms-2">Sair</span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <main class="app-main container-fluid px-3 px-lg-4 py-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="flash-zone">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else category }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                    </div>
+                {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+        {% block content %}{% endblock %}
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

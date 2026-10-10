@@ -1,0 +1,35 @@
+services:
+  web:
+    build: .
+    ports:
+      # Em produção com reverse proxy, prefira "127.0.0.1:5000:5000" para a
+      # app não ficar exposta diretamente — só o proxy (HTTPS) lhe acede.
+      - "5000:5000"
+    volumes:
+      - ./database:/app/database   # base de dados persistida na pasta local
+      - ./instance:/app/instance   # secret key persistida entre rebuilds
+    environment:
+      # OBRIGATÓRIO em produção: defina uma chave própria (ex.: openssl rand -hex 32)
+      # - SECRET_KEY=defina-uma-chave-secreta-aqui
+
+      # Ativar (=1) apenas quando a app é servida por HTTPS (reverse proxy):
+      - SESSION_COOKIE_SECURE=0
+
+      # Ativar (=1) quando estiver atrás de Nginx/Traefik/Cloudflare Tunnel:
+      - BEHIND_PROXY=0
+
+      # Nunca ativar em produção:
+      - FLASK_DEBUG=0
+    restart: unless-stopped
+
+  # Backup automático: cópia diária (03:00) da base de dados para
+  # database/backups/auto/, com rotação (apaga as mais antigas).
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    volumes:
+      - ./database:/data
+    environment:
+      - RETENCAO_DIAS=30   # quantos dias de cópias manter
+    restart: unless-stopped

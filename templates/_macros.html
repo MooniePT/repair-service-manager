@@ -1,0 +1,157 @@
+{# Macros partilhadas por todas as páginas de listagem. #}
+
+{% macro badge_estado(status) -%}
+    {%- set classes = {
+        'Pendente': 'estado-pendente',
+        'Em andamento': 'estado-andamento',
+        'Aguarda Verificação': 'estado-aguarda',
+        'Concluída': 'estado-concluida',
+        'Cancelada': 'estado-cancelada'
+    } -%}
+    <span class="badge {{ classes.get(status, 'estado-cancelada') }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro badge_urgencia(urgencia) -%}
+    {%- if urgencia == 'Urgente' -%}
+        <span class="badge badge-urgente"><i class="fas fa-triangle-exclamation me-1"></i>Urgente</span>
+    {%- elif urgencia == 'Não urgente' -%}
+        <span class="badge badge-nao-urgente">Não urgente</span>
+    {%- else -%}
+        <span class="badge badge-normal">Normal</span>
+    {%- endif -%}
+{%- endmacro %}
+
+{% macro badge_encomenda(status) -%}
+    {%- set classes = {
+        'Por encomendar': 'estado-pendente',
+        'Já encomendado': 'estado-andamento',
+        'Recebido': 'estado-concluida'
+    } -%}
+    <span class="badge {{ classes.get(status, 'estado-cancelada') }}">{{ status }}</span>
+{%- endmacro %}
+
+{% macro badge_pago(pago) -%}
+    {%- if pago -%}
+        <span class="badge badge-pago"><i class="fas fa-circle-check me-1"></i>Pago</span>
+    {%- else -%}
+        <span class="badge badge-por-pagar"><i class="fas fa-circle-exclamation me-1"></i>Por pagar</span>
+    {%- endif -%}
+{%- endmacro %}
+
+{# Barra de pesquisa enviada por GET para a própria página. #}
+{% macro form_pesquisa(q, placeholder='Pesquisar por cliente, NIF, contacto, avaria, tipo...', com_datas=false, data_de='', data_ate='', estado='', estados_opcoes=none) %}
+<form method="get" action="" class="card card-body mb-3 form-pesquisa">
+    {% if request.args.get('por_pagina') %}<input type="hidden" name="por_pagina" value="{{ request.args.get('por_pagina') }}">{% endif %}
+    {% if request.args.get('vista') %}<input type="hidden" name="vista" value="{{ request.args.get('vista') }}">{% endif %}
+    <div class="row g-2 align-items-end">
+        <div class="col-12 {% if com_datas %}col-lg-5{% else %}col-lg-8{% endif %}">
+            <label class="form-label mb-1" for="q">Pesquisa</label>
+            <div class="input-group">
+                <span class="input-group-text"><i class="fas fa-magnifying-glass"></i></span>
+                <input type="search" class="form-control" id="q" name="q" value="{{ q }}" placeholder="{{ placeholder }}">
+            </div>
+        </div>
+        {% if estados_opcoes %}
+        <div class="col-6 col-lg-2">
+            <label class="form-label mb-1" for="estado">Estado</label>
+            <select class="form-select" id="estado" name="estado">
+                <option value="">Todos</option>
+                {% for e in estados_opcoes %}
+                <option value="{{ e }}" {% if estado == e %}selected{% endif %}>{{ e }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        {% endif %}
+        {% if com_datas %}
+        <div class="col-6 col-lg-2">
+            <label class="form-label mb-1" for="data_de">De</label>
+            <input type="date" class="form-control" id="data_de" name="data_de" value="{{ data_de }}">
+        </div>
+        <div class="col-6 col-lg-2">
+            <label class="form-label mb-1" for="data_ate">Até</label>
+            <input type="date" class="form-control" id="data_ate" name="data_ate" value="{{ data_ate }}">
+        </div>
+        {% endif %}
+        <div class="col-6 col-lg-auto d-flex gap-2">
+            <button type="submit" class="btn btn-primary"><i class="fas fa-magnifying-glass me-1"></i>Pesquisar</button>
+            {% if q or data_de or data_ate or estado %}
+            <a href="{{ request.path }}" class="btn btn-outline-secondary">Limpar</a>
+            {% endif %}
+        </div>
+    </div>
+</form>
+{% endmacro %}
+
+{% macro sem_resultados(q, texto='Não existem assistências nesta lista.') %}
+<div class="text-center text-muted py-5 sem-resultados">
+    <i class="fas fa-inbox fa-2x mb-3 d-block"></i>
+    {% if q %}
+        <p class="mb-1">Sem resultados para «<strong>{{ q }}</strong>».</p>
+        <a href="{{ request.path }}" class="btn btn-sm btn-outline-secondary mt-2">Limpar pesquisa</a>
+    {% else %}
+        <p class="mb-0">{{ texto }}</p>
+    {% endif %}
+</div>
+{% endmacro %}
+
+{% macro nome_cliente(assistencia) -%}
+    {%- if assistencia.cliente_id and assistencia.cliente_nome -%}
+        <a href="{{ url_for('ver_cliente', id=assistencia.cliente_id) }}" class="link-cliente">{{ assistencia.cliente_nome }}</a>
+    {%- elif assistencia.cliente_nome -%}
+        {{ assistencia.cliente_nome }}
+    {%- else -%}
+        <span class="text-muted fst-italic">Cliente removido</span>
+    {%- endif -%}
+{%- endmacro %}
+
+{# Barra de paginação: total, escolha de linhas por página e navegação. #}
+{% macro paginacao(pag) %}
+{% if pag.total > 10 %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mt-3 paginacao-barra">
+    <div class="text-muted small">A mostrar {{ pag.inicio }}–{{ pag.fim }} de {{ pag.total }}</div>
+    <div class="d-flex flex-wrap align-items-center gap-3">
+        <div class="small text-muted">
+            Por página:
+            {% for n in (10, 20, 50) %}
+                {%- if n == pag.por_pagina -%}
+                    <strong class="text-body mx-1">{{ n }}</strong>
+                {%- else -%}
+                    <a class="mx-1" href="{{ url_atual(por_pagina=n, pagina=1) }}">{{ n }}</a>
+                {%- endif -%}
+                {%- if not loop.last %}<span>|</span>{% endif -%}
+            {% endfor %}
+        </div>
+        {% if pag.total_paginas > 1 %}
+        <nav aria-label="Páginas">
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item {% if pag.pagina == 1 %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_atual(pagina=pag.pagina - 1) }}" aria-label="Página anterior">«</a>
+                </li>
+                {% for p in range(1, pag.total_paginas + 1) %}
+                    {% if p == 1 or p == pag.total_paginas or (p >= pag.pagina - 2 and p <= pag.pagina + 2) %}
+                    <li class="page-item {% if p == pag.pagina %}active{% endif %}">
+                        <a class="page-link" href="{{ url_atual(pagina=p) }}">{{ p }}</a>
+                    </li>
+                    {% elif p == pag.pagina - 3 or p == pag.pagina + 3 %}
+                    <li class="page-item disabled"><span class="page-link">…</span></li>
+                    {% endif %}
+                {% endfor %}
+                <li class="page-item {% if pag.pagina == pag.total_paginas %}disabled{% endif %}">
+                    <a class="page-link" href="{{ url_atual(pagina=pag.pagina + 1) }}" aria-label="Página seguinte">»</a>
+                </li>
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+{% endmacro %}
+
+{% macro botao_apagar_assistencia(assistencia, next_url) %}
+<form action="{{ url_for('deletar_assistencia', id=assistencia.id) }}" method="post" class="d-inline"
+      data-confirm="Apagar definitivamente a assistência n.º {{ assistencia.id }} ({{ assistencia.cliente_nome or 'sem cliente' }})?">
+    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+    <input type="hidden" name="next" value="{{ next_url }}">
+    <button type="submit" class="btn btn-sm btn-outline-danger" title="Apagar"><i class="fas fa-trash"></i></button>
+</form>
+{% endmacro %}

@@ -1,0 +1,153 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Encomendas{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Encomendas <span class="text-muted fs-5">({{ pendentes|length }} pendentes)</span></h1>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#nova-encomenda"
+            aria-expanded="false" aria-controls="nova-encomenda">
+        <i class="fas fa-plus me-1"></i>Nova Encomenda
+    </button>
+</div>
+
+{# ---------- formulário de nova encomenda ---------- #}
+<div class="collapse mb-4" id="nova-encomenda">
+    <div class="card">
+        <div class="card-header"><i class="fas fa-box-open me-2"></i>Adicionar nova encomenda</div>
+        <div class="card-body">
+            <form action="{{ url_for('add_encomenda') }}" method="post">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="descricao" class="form-label">Descrição <span class="text-danger">*</span></label>
+                        <input type="text" name="descricao" id="descricao" class="form-control" required maxlength="200"
+                               placeholder="Ex.: Tinteiro Epson 503 original C">
+                    </div>
+                    <div class="col-6 col-md-2">
+                        <label for="quantidade" class="form-label">Quantidade</label>
+                        <input type="number" name="quantidade" id="quantidade" class="form-control" min="1" step="1">
+                    </div>
+                    <div class="col-6 col-md-4">
+                        <label for="fornecedor" class="form-label">Fornecedor</label>
+                        <input type="text" name="fornecedor" id="fornecedor" class="form-control" maxlength="120">
+                    </div>
+                </div>
+                <div class="mt-3 d-flex gap-2 align-items-center">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Guardar Encomenda</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#nova-encomenda">Cancelar</button>
+                    <span class="text-muted small ms-2">Fica no estado «Por encomendar» com a data de hoje.</span>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ m.form_pesquisa(q, placeholder='Pesquisar por descrição ou fornecedor...') }}
+
+{# ---------- pendentes ---------- #}
+<div class="card mb-4">
+    <div class="card-header"><i class="fas fa-hourglass-half me-2"></i>Por encomendar / a aguardar receção</div>
+    {% if pendentes %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>N.º</th>
+                    <th>Descrição</th>
+                    <th class="text-center">Qtd.</th>
+                    <th class="d-none d-md-table-cell">Fornecedor</th>
+                    <th>Data</th>
+                    <th>Estado</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in pendentes %}
+                <tr>
+                    <td>{{ e.id }}</td>
+                    <td class="celula-truncada" title="{{ e.descricao }}">{{ e.descricao }}</td>
+                    <td class="text-center">{{ e.quantidade or '—' }}</td>
+                    <td class="d-none d-md-table-cell">{{ e.fornecedor or '—' }}</td>
+                    <td class="text-nowrap">{{ e.data_encomenda|data_pt }}</td>
+                    <td>{{ m.badge_encomenda(e.status) }}</td>
+                    <td class="text-end text-nowrap">
+                        {% if e.status == 'Por encomendar' %}
+                        <form action="{{ url_for('mudar_estado_encomenda', id=e.id) }}" method="post" class="d-inline">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="estado" value="Já encomendado">
+                            <button type="submit" class="btn btn-sm btn-outline-primary" title="Marcar como já encomendado"><i class="fas fa-cart-shopping"></i></button>
+                        </form>
+                        {% endif %}
+                        <form action="{{ url_for('mudar_estado_encomenda', id=e.id) }}" method="post" class="d-inline"
+                              data-confirm="Marcar a encomenda n.º {{ e.id }} como recebida?">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="estado" value="Recebido">
+                            <button type="submit" class="btn btn-sm btn-outline-success" title="Marcar como recebida"><i class="fas fa-check"></i></button>
+                        </form>
+                        <a href="{{ url_for('editar_encomenda', id=e.id) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pen"></i></a>
+                        <form action="{{ url_for('deletar_encomenda', id=e.id) }}" method="post" class="d-inline"
+                              data-confirm="Apagar definitivamente a encomenda n.º {{ e.id }} ({{ e.descricao }})?">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Apagar"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card-body">
+        {{ m.sem_resultados(q, 'Não há encomendas pendentes.') }}
+    </div>
+    {% endif %}
+</div>
+
+{# ---------- histórico de recebidas ---------- #}
+<div class="card">
+    <div class="card-header"><i class="fas fa-clock-rotate-left me-2"></i>Histórico de encomendas recebidas</div>
+    {% if recebidas %}
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>N.º</th>
+                    <th>Descrição</th>
+                    <th class="text-center">Qtd.</th>
+                    <th class="d-none d-md-table-cell">Fornecedor</th>
+                    <th>Encomendada</th>
+                    <th>Recebida</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for e in recebidas %}
+                <tr>
+                    <td>{{ e.id }}</td>
+                    <td class="celula-truncada" title="{{ e.descricao }}">{{ e.descricao }}</td>
+                    <td class="text-center">{{ e.quantidade or '—' }}</td>
+                    <td class="d-none d-md-table-cell">{{ e.fornecedor or '—' }}</td>
+                    <td class="text-nowrap">{{ e.data_encomenda|data_pt }}</td>
+                    <td class="text-nowrap">{{ e.data_recebimento|data_pt }}</td>
+                    <td class="text-end text-nowrap">
+                        <a href="{{ url_for('editar_encomenda', id=e.id) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pen"></i></a>
+                        <form action="{{ url_for('deletar_encomenda', id=e.id) }}" method="post" class="d-inline"
+                              data-confirm="Apagar definitivamente a encomenda n.º {{ e.id }} ({{ e.descricao }})?">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn-sm btn-outline-danger" title="Apagar"><i class="fas fa-trash"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="card-body">
+        {{ m.sem_resultados(q, 'Ainda não há encomendas recebidas.') }}
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

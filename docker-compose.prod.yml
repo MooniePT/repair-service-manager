@@ -1,0 +1,48 @@
+# ============================================================
+#  Configuração de PRODUÇÃO / ACESSO EXTERNO (com Cloudflare Tunnel)
+# ============================================================
+#  Use este ficheiro quando quiser expor a aplicação à Internet
+#  através do Cloudflare. Requer um ficheiro ".env" preenchido
+#  (ver .env.example) com SECRET_KEY e TUNNEL_TOKEN.
+#
+#  Arrancar:
+#     docker compose -f docker-compose.prod.yml up -d --build
+#
+#  Para uso só local, use o "docker-compose.yml" normal.
+# ------------------------------------------------------------
+
+services:
+  web:
+    build: .
+    ports:
+      # 127.0.0.1 = a app NÃO fica acessível pela rede/Internet
+      # diretamente. O mundo só lhe chega através do túnel Cloudflare.
+      - "127.0.0.1:5000:5000"
+    volumes:
+      - ./database:/app/database   # base de dados (persistente no disco)
+      - ./instance:/app/instance   # secret key persistida entre rebuilds
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - SESSION_COOKIE_SECURE=1     # cookies só por HTTPS (há HTTPS via Cloudflare)
+      - BEHIND_PROXY=1              # confiar nos cabeçalhos do túnel
+      - FLASK_DEBUG=0
+    restart: unless-stopped
+
+  tunnel:
+    image: cloudflare/cloudflared:latest
+    command: tunnel run --token ${TUNNEL_TOKEN}
+    restart: unless-stopped
+    depends_on:
+      - web
+
+  # Backup automático: cópia diária (03:00) da base de dados para
+  # database/backups/auto/, com rotação (apaga as mais antigas).
+  backup:
+    build:
+      context: .
+      dockerfile: Dockerfile.backup
+    volumes:
+      - ./database:/data
+    environment:
+      - RETENCAO_DIAS=30   # quantos dias de cópias manter
+    restart: unless-stopped

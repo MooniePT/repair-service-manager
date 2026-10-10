@@ -1,0 +1,39 @@
+<svg viewBox="0 0 760 520" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <style>
+    .titulo { font-size: 22px; font-weight: 700; fill: #1B5E20; }
+    .l { font-size: 17px; font-weight: 700; }
+    .t { font-size: 13px; fill: #455A64; }
+    .num { font-size: 15px; font-weight: 700; fill: #ffffff; }
+  </style>
+
+  <text x="30" y="40" class="titulo">As camadas de segurança (do exterior para o núcleo)</text>
+
+  <!-- camada 1 país -->
+  <rect x="40" y="70" width="680" height="400" rx="18" fill="#FFF8E1" stroke="#F9A825" stroke-width="2"/>
+  <circle cx="70" cy="100" r="14" fill="#F9A825"/>
+  <text x="70" y="105" text-anchor="middle" class="num">1</text>
+  <text x="96" y="105" class="l" fill="#8d6e00">Cloudflare — País permitido (Portugal)</text>
+  <text x="96" y="126" class="t">Quem aceder de fora de Portugal é bloqueado de imediato.</text>
+
+  <!-- camada 2 email -->
+  <rect x="90" y="150" width="580" height="280" rx="16" fill="#E3F2FD" stroke="#0277BD" stroke-width="2"/>
+  <circle cx="120" cy="180" r="14" fill="#0277BD"/>
+  <text x="120" y="185" text-anchor="middle" class="num">2</text>
+  <text x="146" y="185" class="l" fill="#075a8c">Email autorizado + código (OTP)</text>
+  <text x="146" y="206" class="t">Só os emails da tua lista recebem código. Os outros nem</text>
+  <text x="146" y="224" class="t">chegam a ver a aplicação.</text>
+
+  <!-- camada 3 login -->
+  <rect x="140" y="248" width="480" height="160" rx="14" fill="#E8F5E9" stroke="#2E7D32" stroke-width="2"/>
+  <circle cx="170" cy="278" r="14" fill="#2E7D32"/>
+  <text x="170" y="283" text-anchor="middle" class="num">3</text>
+  <text x="196" y="283" class="l" fill="#1b5e20">Login da aplicação</text>
+  <text x="196" y="304" class="t">Utilizador «admin» + palavra-passe forte.</text>
+
+  <!-- núcleo dados -->
+  <rect x="220" y="324" width="320" height="68" rx="12" fill="#1B5E20"/>
+  <text x="380" y="356" text-anchor="middle" class="l" fill="#ffffff">🔒 Dados</text>
+  <text x="380" y="378" text-anchor="middle" class="t" fill="#C8E6C9">clientes · assistências · encomendas</text>
+
+  <text x="40" y="500" class="t">Para um atacante chegar aos dados teria de furar as três camadas. Cada uma é independente das outras.</text>
+</svg>

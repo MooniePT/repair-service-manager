@@ -1,0 +1,56 @@
+<svg viewBox="0 0 760 560" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <style>
+    .win { fill: #ffffff; stroke: #CFD8DC; stroke-width: 1.5; }
+    .bar { fill: #1E3528; }
+    .field { fill: #F7F9F7; stroke: #B0BEC5; stroke-width: 1.2; }
+    .lab { font-size: 12px; fill: #607D8B; font-weight: 700; }
+    .val { font-size: 14px; fill: #263238; }
+    .cap { font-size: 13px; fill: #455A64; }
+    .pill { font-size: 13px; fill: #1B5E20; }
+    .sec { font-size: 14px; font-weight: 700; fill: #1B5E20; }
+  </style>
+
+  <rect x="20" y="20" width="720" height="520" rx="10" class="win"/>
+  <rect x="20" y="20" width="720" height="44" rx="10" class="bar"/>
+  <circle cx="44" cy="42" r="6" fill="#FF5F57"/>
+  <circle cx="64" cy="42" r="6" fill="#FEBC2E"/>
+  <circle cx="84" cy="42" r="6" fill="#28C840"/>
+  <text x="120" y="47" font-size="14" fill="#E8F5E9" font-weight="700">Cloudflare · Access · Add policy</text>
+
+  <!-- policy name -->
+  <text x="48" y="100" class="lab">POLICY NAME</text>
+  <rect x="48" y="108" width="400" height="38" rx="6" class="field"/>
+  <text x="64" y="132" class="val">Equipa</text>
+
+  <!-- action -->
+  <text x="472" y="100" class="lab">ACTION</text>
+  <rect x="472" y="108" width="220" height="38" rx="6" fill="#E8F5E9" stroke="#2E7D32" stroke-width="1.2"/>
+  <text x="488" y="132" class="val" fill="#1B5E20">Allow ✓</text>
+
+  <!-- INCLUDE -->
+  <rect x="48" y="170" width="644" height="150" rx="8" fill="#FBFEFB" stroke="#C8E6C9" stroke-width="1.5"/>
+  <text x="64" y="196" class="sec">INCLUDE  (quem PODE entrar)</text>
+  <text x="64" y="220" class="lab">SELECTOR</text>
+  <rect x="64" y="228" width="200" height="36" rx="6" class="field"/>
+  <text x="80" y="251" class="val">Emails</text>
+  <text x="288" y="220" class="lab">VALUE</text>
+  <rect x="288" y="228" width="388" height="76" rx="6" class="field"/>
+  <text x="304" y="251" class="val">teu@gmail.com</text>
+  <text x="304" y="275" class="val">colega@empresa.pt</text>
+  <text x="304" y="297" class="val" fill="#90A4AE">+ adicionar mais, um por linha…</text>
+
+  <!-- REQUIRE -->
+  <rect x="48" y="338" width="644" height="120" rx="8" fill="#FFFDF5" stroke="#F9D67A" stroke-width="1.5"/>
+  <text x="64" y="364" class="sec" fill="#8d6e00">REQUIRE  (condição obrigatória, além do email)</text>
+  <text x="64" y="388" class="lab">SELECTOR</text>
+  <rect x="64" y="396" width="200" height="36" rx="6" class="field"/>
+  <text x="80" y="419" class="val">Country</text>
+  <text x="288" y="388" class="lab">VALUE</text>
+  <rect x="288" y="396" width="388" height="36" rx="6" class="field"/>
+  <text x="304" y="419" class="val">Portugal</text>
+
+  <!-- save -->
+  <rect x="560" y="480" width="132" height="44" rx="8" fill="#2E7D32"/>
+  <text x="626" y="508" text-anchor="middle" font-size="15" fill="#ffffff" font-weight="700">Save</text>
+  <text x="48" y="508" class="cap">Resultado: só estes emails E só a partir de Portugal.</text>
+</svg>

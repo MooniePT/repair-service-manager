@@ -1,0 +1,418 @@
+/* ============================================================
+   Gestão de Assistências — folha de estilos
+   Identidade verde profissional. Complementa o Bootstrap 5;
+   só sobrepõe o necessário.
+   ============================================================ */
+
+:root {
+    /* paleta principal (verde) */
+    --primary: #2E7D32;
+    --primary-dark: #1B5E20;
+    --primary-medium: #388E3C;
+    --primary-light: #66BB6A;
+    --primary-soft: #E8F5E9;
+
+    /* superfícies e texto */
+    --background: #F7F9F7;
+    --surface: #FFFFFF;
+    --border: #DDE5DD;
+    --text-main: #263238;
+    --text-muted: #546E7A;
+
+    /* cores semânticas (independentes da identidade) */
+    --success: #2E7D32;
+    --warning: #B47C00;       /* tom escurecido para contraste AA em texto */
+    --warning-soft: #FCF3D7;
+    --danger: #C62828;
+    --danger-soft: #FDECEA;
+    --info: #0277BD;
+    --info-soft: #E3F2FD;
+
+    /* navbar */
+    --navbar-bg: #1E3528;     /* verde-escuro acinzentado, sóbrio */
+    --navbar-hover: #2C4A38;
+
+    --app-radius: 0.5rem;
+    --app-shadow: 0 1px 3px rgba(27, 60, 35, 0.10);
+}
+
+body {
+    background-color: var(--background);
+    color: var(--text-main);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+}
+
+.app-main {
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.page-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+
+.text-muted { color: var(--text-muted) !important; }
+
+a { color: var(--primary-medium); }
+a:hover { color: var(--primary-dark); }
+
+/* foco visível e consistente em toda a aplicação (teclado) */
+:focus-visible {
+    outline: 3px solid var(--primary-light);
+    outline-offset: 2px;
+}
+
+/* ---------------- navbar ---------------- */
+.app-navbar {
+    background-color: var(--navbar-bg);
+    box-shadow: var(--app-shadow);
+}
+
+.app-navbar .navbar-brand {
+    font-weight: 700;
+    letter-spacing: 0.2px;
+    color: #fff;
+}
+
+.app-navbar .navbar-brand i { color: var(--primary-light); }
+
+.app-navbar .nav-link {
+    color: rgba(255, 255, 255, 0.78);
+    border-radius: 0.375rem;
+    padding: 0.5rem 0.75rem;
+    margin: 0.125rem;
+    transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.app-navbar .nav-link:hover {
+    color: #fff;
+    background-color: var(--navbar-hover);
+}
+
+.app-navbar .nav-link.active {
+    color: #fff;
+    background-color: var(--primary);
+    font-weight: 600;
+}
+
+/* ---------------- botões ---------------- */
+.btn { transition: background-color 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease; }
+
+.btn-primary {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-primary:hover, .btn-primary:focus, .btn-primary:active {
+    background-color: var(--primary-dark) !important;
+    border-color: var(--primary-dark) !important;
+}
+
+.btn-primary:focus-visible { box-shadow: 0 0 0 0.25rem rgba(46, 125, 50, 0.35); }
+
+.btn-outline-primary {
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:active {
+    background-color: var(--primary) !important;
+    border-color: var(--primary) !important;
+    color: #fff;
+}
+
+.btn-success { background-color: var(--success); border-color: var(--success); }
+.btn-success:hover { background-color: var(--primary-dark); border-color: var(--primary-dark); }
+.btn-outline-success { color: var(--success); border-color: var(--success); }
+.btn-outline-success:hover { background-color: var(--success); border-color: var(--success); }
+.btn-danger { background-color: var(--danger); border-color: var(--danger); }
+.btn-outline-danger { color: var(--danger); border-color: var(--danger); }
+.btn-outline-danger:hover { background-color: var(--danger); border-color: var(--danger); }
+
+/* ---------------- formulários ---------------- */
+.form-control:focus, .form-select:focus {
+    border-color: var(--primary-light);
+    box-shadow: 0 0 0 0.25rem rgba(102, 187, 106, 0.25);
+}
+
+.form-check-input:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+/* ---------------- cartões e tabelas ---------------- */
+.card {
+    border: 1px solid var(--border);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow);
+    background-color: var(--surface);
+}
+
+.card-header {
+    background-color: var(--surface);
+    font-weight: 600;
+    border-bottom: 1px solid var(--border);
+}
+
+.card-header i { color: var(--primary-medium); }
+
+.form-card { max-width: 900px; }
+
+.table thead th {
+    background-color: var(--primary-soft);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--primary-dark);
+    white-space: nowrap;
+}
+
+.table > :not(caption) > * > * {
+    padding: 0.65rem 0.75rem;
+}
+
+.table-hover tbody tr:hover { background-color: var(--primary-soft); }
+
+.celula-truncada {
+    max-width: 260px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+/* urgência: cor + barra lateral (a etiqueta de texto transmite o significado) */
+.linha-urgente > td:first-child {
+    box-shadow: inset 3px 0 0 var(--danger);
+}
+
+.link-cliente {
+    color: var(--primary-medium);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.link-cliente:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+}
+
+/* ---------------- badges de estado ----------------
+   Fundos suaves com texto escuro do mesmo tom: legíveis,
+   consistentes e com contraste AA. O texto identifica sempre
+   o estado — a cor é reforço, nunca o único sinal. */
+.badge { font-weight: 600; }
+
+.estado-pendente   { background-color: var(--warning-soft); color: #7A5800; border: 1px solid #EAD9A0; }
+.estado-andamento  { background-color: var(--info-soft);    color: #075A8C; border: 1px solid #BBDEFB; }
+.estado-aguarda    { background-color: #E0F2F1;             color: #00695C; border: 1px solid #B2DFDB; }
+.estado-concluida  { background-color: var(--primary-soft); color: var(--primary-dark); border: 1px solid #C8E6C9; }
+.estado-cancelada  { background-color: #ECEFF1;             color: #455A64; border: 1px solid #CFD8DC; }
+
+.badge-urgente     { background-color: var(--danger); color: #fff; }
+.badge-nao-urgente { background-color: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+.badge-normal      { background-color: var(--surface); color: var(--text-muted); border: 1px solid var(--border); }
+
+.badge-pago        { background-color: var(--primary-soft); color: var(--primary-dark); border: 1px solid #C8E6C9; }
+.badge-por-pagar   { background-color: var(--danger-soft);  color: var(--danger); border: 1px solid #F5C6CB; }
+
+/* contadores na navbar */
+.badge-contador {
+    background-color: var(--primary-light);
+    color: #0D2818;
+}
+
+/* ---------------- dashboard ---------------- */
+.stat-card {
+    display: block;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--app-radius);
+    box-shadow: var(--app-shadow);
+    padding: 1rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--text-main);
+    height: 100%;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(27, 60, 35, 0.16);
+    border-color: var(--primary-light);
+    color: var(--text-main);
+}
+
+.stat-icon {
+    font-size: 1.1rem;
+    width: 2.4rem;
+    height: 2.4rem;
+    line-height: 2.4rem;
+    border-radius: 50%;
+    margin: 0 auto 0.5rem;
+}
+
+.stat-value {
+    font-size: 1.6rem;
+    font-weight: 700;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.78rem;
+    color: var(--text-muted);
+}
+
+.stat-neutral  .stat-icon { background: var(--primary-soft); color: var(--primary-dark); }
+.stat-warning  .stat-icon { background: var(--warning-soft); color: #7A5800; }
+.stat-primary  .stat-icon { background: var(--info-soft);    color: var(--info); }
+.stat-info     .stat-icon { background: #E0F2F1;             color: #00695C; }
+.stat-success  .stat-icon { background: var(--primary-soft); color: var(--primary); }
+.stat-danger   .stat-icon { background: var(--danger-soft);  color: var(--danger); }
+
+.card-valor { border-left: 4px solid var(--primary); }
+
+.text-success { color: var(--success) !important; }
+.text-danger { color: var(--danger) !important; }
+
+/* contentor dos gráficos: altura fixa para o Chart.js ser responsivo
+   sem rebentar o layout */
+.grafico-caixa {
+    position: relative;
+    height: 260px;
+    width: 100%;
+}
+
+.grafico-caixa-grande { height: 300px; }
+
+/* ---------------- pesquisa / detalhe ---------------- */
+.form-pesquisa .form-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--text-muted);
+}
+
+.dl-detalhe dt {
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.sem-resultados i { color: #C5D2C5; }
+
+.breadcrumb-item a { color: var(--primary-medium); text-decoration: none; }
+.breadcrumb-item a:hover { text-decoration: underline; }
+
+/* ---------------- paginação ---------------- */
+.page-link {
+    color: var(--primary-medium);
+}
+
+.page-link:hover {
+    color: var(--primary-dark);
+    background-color: var(--primary-soft);
+}
+
+.page-item.active .page-link {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.page-link:focus {
+    box-shadow: 0 0 0 0.25rem rgba(102, 187, 106, 0.25);
+}
+
+/* ---------------- histórico agrupado por cliente ---------------- */
+.linha-grupo {
+    cursor: pointer;
+}
+
+.seta-grupo {
+    color: var(--primary-medium);
+    transition: transform 0.2s ease;
+}
+
+.linha-grupo[aria-expanded="true"] .seta-grupo {
+    transform: rotate(90deg);
+}
+
+.linha-grupo[aria-expanded="true"] > td {
+    background-color: var(--primary-soft);
+}
+
+.grupo-detalhe {
+    background-color: #FBFDFB;
+    border-left: 3px solid var(--primary-light);
+    margin: 0 0 0 1rem;
+}
+
+.linha-grupo-detalhe > td {
+    border-top: none;
+}
+
+/* ---------------- alertas/mensagens ---------------- */
+.alert-success {
+    background-color: var(--primary-soft);
+    border-color: #C8E6C9;
+    color: var(--primary-dark);
+}
+
+.alert-warning {
+    background-color: var(--warning-soft);
+    border-color: #EAD9A0;
+    color: #6B4F00;
+}
+
+.alert-danger {
+    background-color: var(--danger-soft);
+    border-color: #F5C6CB;
+    color: var(--danger);
+}
+
+/* ---------------- login ---------------- */
+.pagina-login {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: linear-gradient(160deg, #1E3528 0%, #11241A 100%);
+    padding: 1rem;
+}
+
+.login-container {
+    background: var(--surface);
+    padding: 2.25rem 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
+    width: 100%;
+    max-width: 380px;
+}
+
+.login-icone {
+    width: 3.5rem;
+    height: 3.5rem;
+    line-height: 3.5rem;
+    margin: 0 auto;
+    border-radius: 50%;
+    background: var(--primary);
+    color: #fff;
+    font-size: 1.4rem;
+    text-align: center;
+}
+
+/* ---------------- responsividade ---------------- */
+@media (max-width: 767.98px) {
+    .page-title { font-size: 1.25rem; }
+    .celula-truncada { max-width: 140px; }
+    .stat-value { font-size: 1.3rem; }
+    .grafico-caixa, .grafico-caixa-grande { height: 220px; }
+}
+
+/* ---------------- impressão ---------------- */
+@media print {
+    .app-navbar, .form-pesquisa, .btn, form { display: none !important; }
+    .card { border: none; box-shadow: none; }
+    body { background: #fff; }
+}

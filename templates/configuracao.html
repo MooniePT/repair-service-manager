@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Configuração{% endblock %}
+
+{% block content %}
+<h1 class="page-title mb-4">Configuração</h1>
+
+<div class="card form-card">
+    <div class="card-header"><i class="fas fa-key me-2"></i>Alterar palavra-passe</div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('configuracao') }}" id="configuracao-form">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <div class="mb-3">
+                <label for="current_password" class="form-label">Palavra-passe atual <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="current_password" name="current_password" required autocomplete="current-password">
+            </div>
+            <div class="mb-3">
+                <label for="new_password" class="form-label">Nova palavra-passe <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="new_password" name="new_password" required minlength="6" autocomplete="new-password">
+                <div class="form-text">Mínimo de 6 caracteres.</div>
+            </div>
+            <div class="mb-4">
+                <label for="confirm_password" class="form-label">Confirmar nova palavra-passe <span class="text-danger">*</span></label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required minlength="6" autocomplete="new-password">
+            </div>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Alterar Palavra-passe</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

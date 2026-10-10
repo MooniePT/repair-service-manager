@@ -1,0 +1,63 @@
+<svg viewBox="0 0 980 420" xmlns="http://www.w3.org/2000/svg" font-family="Segoe UI, Arial, sans-serif">
+  <style>
+    .titulo { font-size: 21px; font-weight: 700; fill: #1B5E20; }
+    .step { fill: #ffffff; stroke: #2E7D32; stroke-width: 2; }
+    .n { font-size: 16px; font-weight: 700; fill: #ffffff; }
+    .h { font-size: 14px; font-weight: 700; fill: #1B5E20; }
+    .t { font-size: 12px; fill: #455A64; }
+    .arrow { stroke: #2E7D32; stroke-width: 2.5; fill: none; marker-end: url(#a2); }
+  </style>
+  <defs>
+    <marker id="a2" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto">
+      <path d="M0,0 L8,3 L0,6 Z" fill="#2E7D32"/>
+    </marker>
+  </defs>
+
+  <text x="30" y="38" class="titulo">Mudar de máquina / migrar sem perder nada</text>
+
+  <!-- step 1 -->
+  <rect x="30" y="70" width="210" height="130" rx="10" class="step"/>
+  <circle cx="58" cy="98" r="14" fill="#2E7D32"/><text x="58" y="103" text-anchor="middle" class="n">1</text>
+  <text x="80" y="103" class="h">Backup</text>
+  <text x="48" y="132" class="t">Copia a pasta</text>
+  <text x="48" y="150" class="t">database/ (tem os</text>
+  <text x="48" y="168" class="t">dados todos).</text>
+
+  <!-- step 2 -->
+  <rect x="280" y="70" width="210" height="130" rx="10" class="step"/>
+  <circle cx="308" cy="98" r="14" fill="#2E7D32"/><text x="308" y="103" text-anchor="middle" class="n">2</text>
+  <text x="330" y="103" class="h">Copiar projeto</text>
+  <text x="298" y="132" class="t">Leva a pasta inteira</text>
+  <text x="298" y="150" class="t">ProjetoWeb para a</text>
+  <text x="298" y="168" class="t">nova máquina.</text>
+
+  <!-- step 3 -->
+  <rect x="530" y="70" width="210" height="130" rx="10" class="step"/>
+  <circle cx="558" cy="98" r="14" fill="#2E7D32"/><text x="558" y="103" text-anchor="middle" class="n">3</text>
+  <text x="580" y="103" class="h">.env</text>
+  <text x="548" y="132" class="t">Recria o .env com</text>
+  <text x="548" y="150" class="t">SECRET_KEY e</text>
+  <text x="548" y="168" class="t">TUNNEL_TOKEN.</text>
+
+  <!-- step 4 -->
+  <rect x="780" y="70" width="210" height="130" rx="10" class="step"/>
+  <circle cx="808" cy="98" r="14" fill="#2E7D32"/><text x="808" y="103" text-anchor="middle" class="n">4</text>
+  <text x="830" y="103" class="h">Arrancar</text>
+  <text x="798" y="132" class="t">docker compose</text>
+  <text x="798" y="150" class="t">up -d --build</text>
+  <text x="798" y="168" class="t">(migra sozinho).</text>
+
+  <path d="M240 135 H276" class="arrow"/>
+  <path d="M490 135 H526" class="arrow"/>
+  <path d="M740 135 H776" class="arrow"/>
+
+  <!-- verify -->
+  <rect x="280" y="250" width="460" height="120" rx="10" fill="#E8F5E9" stroke="#66BB6A" stroke-width="2"/>
+  <circle cx="308" cy="278" r="14" fill="#1B5E20"/><text x="308" y="283" text-anchor="middle" class="n">5</text>
+  <text x="330" y="283" class="h">Verificar</text>
+  <text x="300" y="312" class="t">Abrir a app → confirmar nº de clientes e assistências.</text>
+  <text x="300" y="334" class="t">A app cria SEMPRE um backup automático antes de migrar</text>
+  <text x="300" y="352" class="t">o esquema, em database/backups/.</text>
+
+  <path d="M510 200 V246" class="arrow"/>
+</svg>

@@ -1,0 +1,12 @@
+# dados e segredos nunca entram na imagem (vão por volume)
+database/
+instance/
+db/
+.env
+
+# lixo de desenvolvimento
+__pycache__/
+*.pyc
+.claude/
+.git/
+README.md

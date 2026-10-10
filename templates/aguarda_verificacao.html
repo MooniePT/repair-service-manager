@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Aguarda Verificação{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Aguarda Verificação <span class="text-muted fs-5">({{ pag.total }})</span></h1>
+</div>
+<p class="text-muted">Trabalhos terminados que aguardam verificação, aprovação ou pagamento. Ao aprovar, a assistência passa para o Histórico.</p>
+
+{{ m.form_pesquisa(q) }}
+
+{% if assistencias %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>N.º</th>
+                    <th>Cliente</th>
+                    <th class="d-none d-lg-table-cell">Data</th>
+                    <th>Concluído em</th>
+                    <th>Avaria</th>
+                    <th class="d-none d-lg-table-cell">Trabalho efetuado</th>
+                    <th class="d-none d-md-table-cell">Valor</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for a in assistencias %}
+                <tr>
+                    <td>{{ a.id }}</td>
+                    <td>{{ m.nome_cliente(a) }}</td>
+                    <td class="d-none d-lg-table-cell text-nowrap">{{ a.data|data_pt }}</td>
+                    <td class="text-nowrap">{{ a.data_conclusao|data_pt }}</td>
+                    <td class="celula-truncada" title="{{ a.avaria }}">{{ a.avaria }}</td>
+                    <td class="d-none d-lg-table-cell celula-truncada" title="{{ a.descricao }}">{{ a.descricao or '—' }}</td>
+                    <td class="d-none d-md-table-cell">{{ a.valor|euros }}</td>
+                    <td class="text-end text-nowrap">
+                        <form action="{{ url_for('mudar_estado', id=a.id) }}" method="post" class="d-inline"
+                              data-confirm="Aprovar e marcar como PAGA a assistência n.º {{ a.id }}?">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="estado" value="Concluída">
+                            <input type="hidden" name="pago" value="1">
+                            <input type="hidden" name="next" value="{{ request.full_path }}">
+                            <button type="submit" class="btn btn-sm btn-success" title="Aprovar e marcar paga">
+                                <i class="fas fa-euro-sign me-1"></i>Aprovar + Paga
+                            </button>
+                        </form>
+                        <form action="{{ url_for('mudar_estado', id=a.id) }}" method="post" class="d-inline"
+                              data-confirm="Aprovar a assistência n.º {{ a.id }} (fica por pagar)?">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="estado" value="Concluída">
+                            <input type="hidden" name="next" value="{{ request.full_path }}">
+                            <button type="submit" class="btn btn-sm btn-outline-success" title="Aprovar (fica por pagar)">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </form>
+                        <form action="{{ url_for('mudar_estado', id=a.id) }}" method="post" class="d-inline"
+                              data-confirm="Devolver a assistência n.º {{ a.id }} à lista «Em Aberto»?">
+                            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                            <input type="hidden" name="estado" value="Em andamento">
+                            <input type="hidden" name="next" value="{{ request.full_path }}">
+                            <button type="submit" class="btn btn-sm btn-outline-warning" title="Devolver a Em Aberto">
+                                <i class="fas fa-rotate-left"></i>
+                            </button>
+                        </form>
+                        <a href="{{ url_for('editar_assistencia', id=a.id, next=request.full_path) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pen"></i></a>
+                        {{ m.botao_apagar_assistencia(a, request.full_path) }}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ m.paginacao(pag) }}
+{% else %}
+<div class="card"><div class="card-body">
+    {{ m.sem_resultados(q, 'Não há assistências a aguardar verificação.') }}
+</div></div>
+{% endif %}
+{% endblock %}

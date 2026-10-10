@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Clientes{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Clientes <span class="text-muted fs-5">({{ pag.total }})</span></h1>
+    <button class="btn btn-primary" type="button" data-bs-toggle="collapse" data-bs-target="#novo-cliente"
+            aria-expanded="false" aria-controls="novo-cliente">
+        <i class="fas fa-user-plus me-1"></i>Novo Cliente
+    </button>
+</div>
+
+{# ---------- formulário de novo cliente ---------- #}
+<div class="collapse mb-4" id="novo-cliente">
+    <div class="card">
+        <div class="card-header"><i class="fas fa-user-plus me-2"></i>Adicionar novo cliente</div>
+        <div class="card-body">
+            <form action="{{ url_for('add_cliente') }}" method="post" id="form-cliente">
+                <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <label for="nome" class="form-label">Nome <span class="text-danger">*</span></label>
+                        <input type="text" name="nome" id="nome" class="form-control" required maxlength="120">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="nif" class="form-label">NIF</label>
+                        <input type="text" name="nif" id="nif" class="form-control" inputmode="numeric"
+                               pattern="\d{9}" title="9 dígitos" maxlength="9" placeholder="123456789">
+                    </div>
+                    <div class="col-md-3">
+                        <label for="contacto" class="form-label">Contacto</label>
+                        <input type="text" name="contacto" id="contacto" class="form-control" maxlength="30" placeholder="912 345 678">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="morada" class="form-label">Morada</label>
+                        <input type="text" name="morada" id="morada" class="form-control" maxlength="200">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" name="email" id="email" class="form-control" maxlength="120" placeholder="cliente@exemplo.pt">
+                    </div>
+                    <div class="col-12">
+                        <label for="observacoes" class="form-label">Observações</label>
+                        <textarea name="observacoes" id="observacoes" class="form-control" rows="2"></textarea>
+                    </div>
+                </div>
+                <div class="mt-3 d-flex gap-2">
+                    <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Guardar Cliente</button>
+                    <button type="button" class="btn btn-outline-secondary" data-bs-toggle="collapse" data-bs-target="#novo-cliente">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+{{ m.form_pesquisa(q, placeholder='Pesquisar por nome, NIF, contacto, morada ou email...') }}
+
+{% if clientes %}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>NIF</th>
+                    <th>Contacto</th>
+                    <th class="d-none d-md-table-cell">Morada</th>
+                    <th class="text-center">Assistências</th>
+                    <th class="text-end">Ações</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for cliente in clientes %}
+                <tr>
+                    <td><a href="{{ url_for('ver_cliente', id=cliente.id) }}" class="link-cliente fw-semibold">{{ cliente.nome }}</a></td>
+                    <td>{{ cliente.nif or '—' }}</td>
+                    <td>{{ cliente.contacto or '—' }}</td>
+                    <td class="d-none d-md-table-cell">{{ cliente.morada or '—' }}</td>
+                    <td class="text-center">
+                        {% if cliente.abertas %}
+                            <span class="badge text-bg-warning" title="Em aberto">{{ cliente.abertas }} aberta(s)</span>
+                        {% endif %}
+                        <span class="badge text-bg-secondary" title="Total">{{ cliente.total_assistencias }}</span>
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a href="{{ url_for('ver_cliente', id=cliente.id) }}" class="btn btn-sm btn-outline-secondary" title="Ver detalhes"><i class="fas fa-eye"></i></a>
+                        <a href="{{ url_for('editar_cliente', id=cliente.id) }}" class="btn btn-sm btn-outline-primary" title="Editar"><i class="fas fa-pen"></i></a>
+                        <a href="{{ url_for('listar_assistencias', cliente_id=cliente.id, novo=1) }}" class="btn btn-sm btn-outline-success" title="Nova assistência para este cliente"><i class="fas fa-plus"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{{ m.paginacao(pag) }}
+{% else %}
+<div class="card"><div class="card-body">
+    {{ m.sem_resultados(q, 'Ainda não existem clientes. Use o botão «Novo Cliente» para criar o primeiro.') }}
+</div></div>
+{% endif %}
+{% endblock %}

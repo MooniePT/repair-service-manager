@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+{% import "_macros.html" as m %}
+
+{% block title %}Editar Assistência n.º {{ assistencia.id }}{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('listar_assistencias') }}">Assistências</a></li>
+        <li class="breadcrumb-item active" aria-current="page">Editar n.º {{ assistencia.id }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-4">
+    <h1 class="page-title mb-0">Editar Assistência n.º {{ assistencia.id }}</h1>
+    {{ m.badge_estado(assistencia.status) }}
+</div>
+
+<div class="card form-card">
+    <div class="card-body">
+        <form action="{{ url_for('editar_assistencia', id=assistencia.id) }}" method="post" id="form-assistencia">
+            <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label for="cliente_id" class="form-label">Cliente <span class="text-danger">*</span></label>
+                    <select name="cliente_id" id="cliente_id" class="form-select" required>
+                        {% for cliente in clientes %}
+                        <option value="{{ cliente.id }}" {% if cliente.id == assistencia.cliente_id %}selected{% endif %}>
+                            {{ cliente.nome }}{% if cliente.nif %} · NIF {{ cliente.nif }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="data" class="form-label">Data <span class="text-danger">*</span></label>
+                    <input type="date" name="data" id="data" class="form-control" value="{{ assistencia.data }}" required>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="hora" class="form-label">Hora</label>
+                    <input type="time" name="hora" id="hora" class="form-control" value="{{ assistencia.hora or '' }}">
+                </div>
+                <div class="col-12">
+                    <label for="avaria" class="form-label">Avaria / problema <span class="text-danger">*</span></label>
+                    <textarea name="avaria" id="avaria" class="form-control" rows="2" required>{{ assistencia.avaria }}</textarea>
+                </div>
+                <div class="col-12">
+                    <label for="descricao" class="form-label">Descrição / trabalho efetuado</label>
+                    <textarea name="descricao" id="descricao" class="form-control" rows="3">{{ assistencia.descricao or '' }}</textarea>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="tipo" class="form-label">Tipo <span class="text-danger">*</span></label>
+                    <select name="tipo" id="tipo" class="form-select" required>
+                        {% for t in TIPOS_ASSISTENCIA %}
+                        <option value="{{ t }}" {% if assistencia.tipo == t %}selected{% endif %}>{{ t }}</option>
+                        {% endfor %}
+                        {% if assistencia.tipo and assistencia.tipo not in TIPOS_ASSISTENCIA %}
+                        <option value="{{ assistencia.tipo }}" selected>{{ assistencia.tipo }}</option>
+                        {% endif %}
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="urgencia" class="form-label">Urgência</label>
+                    <select name="urgencia" id="urgencia" class="form-select">
+                        {% for u in URGENCIAS %}
+                        <option value="{{ u }}" {% if assistencia.urgencia == u %}selected{% endif %}>{{ u }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="status" class="form-label">Estado <span class="text-danger">*</span></label>
+                    <select name="status" id="status" class="form-select" required>
+                        {% for e in TODOS_ESTADOS %}
+                        <option value="{{ e }}" {% if assistencia.status == e %}selected{% endif %}>{{ e }}</option>
+                        {% endfor %}
+                    </select>
+                    <div class="form-text">«Aguarda Verificação» e «Concluída» preenchem a data de conclusão automaticamente.</div>
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="data_conclusao" class="form-label">Data de conclusão</label>
+                    <input type="date" name="data_conclusao" id="data_conclusao" class="form-control" value="{{ assistencia.data_conclusao or '' }}">
+                </div>
+                <div class="col-6 col-md-3">
+                    <label for="valor" class="form-label">Valor (€)</label>
+                    <input type="text" name="valor" id="valor" class="form-control" inputmode="decimal"
+                           value="{{ assistencia.valor if assistencia.valor is not none else '' }}" placeholder="Ex.: 45,50">
+                </div>
+                <div class="col-6 col-md-3 d-flex align-items-end">
+                    <div class="form-check form-switch mb-2">
+                        <input class="form-check-input" type="checkbox" name="pago" id="pago" value="1" {% if assistencia.pago %}checked{% endif %}>
+                        <label class="form-check-label" for="pago">Paga</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4 d-flex gap-2">
+                <button type="submit" class="btn btn-primary"><i class="fas fa-check me-1"></i>Guardar Alterações</button>
+                <a href="{{ next or url_for('listar_assistencias') }}" class="btn btn-outline-secondary">Cancelar</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

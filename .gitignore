@@ -1,0 +1,16 @@
+# segredos — nunca versionar
+.env
+instance/
+
+# base de dados e backups — dados reais, fora do controlo de versões
+database/
+
+# lixo de desenvolvimento
+__pycache__/
+*.pyc
+.claude/
+
+# nunca versionar ficheiros de base de dados, onde quer que estejam
+*.db
+*.db.gz
+*.sqlite
